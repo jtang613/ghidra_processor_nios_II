@@ -24,3 +24,41 @@ define register offset=32 size=4 [
 ];
 # TODO?: define status, estatus, bstatus, ienable, ipending, exception, pteaddr, tlbacc, tlbmisc, config, mpubase, mpuacc and eccinj as bitranges
 
+# Bit fields for the 3 instruction types
+define token instr (32)
+	opcode = (0, 5)
+# I-type specific
+	imm16 = (6, 21) signed
+	regB = (22, 26)
+	regA = (27, 31)
+	regB_s = (22, 26) signed
+	regA_s = (27, 31) signed
+# R-type specific
+	opx_full = (6, 16)
+	opx = (11, 16)
+	regC = (17, 21)
+	ctlN = (6, 10)
+	imm5 = (6, 10)
+# J-type specific
+	imm26 = (6, 31)
+# Custom instruction specific
+	customN = (6, 13)
+	writerC = (14, 14)
+	readrB = (15, 15)
+	readrC = (16, 16)
+;
+
+# Bind register fields to actual registers
+attach variables [regC regB regA] [
+	zero  r1  r2  r3  r4  r5  r6      r7
+	r8    r9  r10 r11 r12 r13 r14     r15
+	r16   r17 r18 r19 r20 r21 r22     r23
+	et    bt  gp  sp  fp  ea  sstatus ra
+];
+
+attach variables [ctlN] [
+	status  estatus bstatus ienable ipending cpuid  ctl6    exception
+	pteaddr tlbacc  tlbmisc eccinj  badaddr  config mpubase mpuacc
+	ctl16   ctl17   ctl18   ctl19   ctl20    ctl21  ctl22   ctl23
+	ctl24   ctl25   ctl26   ctl27   ctl28    ctl29  ctl30   ctl31
+];
