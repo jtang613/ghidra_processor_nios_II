@@ -62,3 +62,142 @@ attach variables [ctlN] [
 	ctl16   ctl17   ctl18   ctl19   ctl20    ctl21  ctl22   ctl23
 	ctl24   ctl25   ctl26   ctl27   ctl28    ctl29  ctl30   ctl31
 ];
+
+# Opcodes
+## R-type (opcode == 0x3a) sorted by OPX value
+with : opcode=0x3a {
+	:eret is opx=0x01 {
+		status = estatus;
+		goto ea;
+	}
+	:roli regC, regA, imm5 is opx=0x02 {
+		#TODO: implement ROLI
+	}
+	:rol regC, regA, regB is opx=0x03 {
+		#TODO: implement ROL
+	}
+	:flushp is opx=0x04 {} # flush prefetched instruction
+	:nor regC, regA, regB is opx=0x06 {
+		regC = ~(regA | regB);
+	}
+	:ret is opx=0x05 {
+		goto ra;
+	}
+	:mulxuu regC, regA, regB is opx=0x07 {
+		regC = (regA * regB)[63, 32];
+	}
+	:cmpge regC, regA_s, regB_s is opx=0x08 {
+		regC = (regA_s >= regB_s);
+	}
+	:bret is opx=0x09 {
+		unimp; # used to return from debugger
+	}
+	:ror regC, regA, regB is opx=0x0b {
+		#TODO: implement ROR
+	}
+	:flushi regA is opx=0x0c {} # flush instruction cache
+	:jmp regA is opx=0x0d {
+		goto regA;
+	}
+	:and regC, regA, regB is opx=0x0e {
+		regC = regA & regB;
+	}
+	:cmplt regC, regA_s, regB_s is opx=0x10 {
+		regC = (regA_s < regB_s);
+	}
+	:slli regC, regA, imm5 is opx=0x12 {
+		regC = regA << imm5;
+	}
+	:sll regC, regA, regB is opx=0x13 {
+		regC = regA << (regB[4, 0]);
+	}
+	:wrprs regC, regA is opx=0x14 {
+		unimp; # Copies the value of regA in the current register set to regC in the previous register set.
+	}
+	:or regC, regA, regB is opx=0x16 {
+		regC = regA | regB;
+	}
+	:mulxsu regC, regA_s, regB is opx=0x17 {
+		regC = (regA_s * regB)[63, 32];
+	}
+	:cmpne regC, regA, regB is opx=0x18 {
+		regC = (regA != regB);
+	}
+	:srli regC, regA, imm5 is opx=0x1a {
+		regC = regA << imm5;
+	}
+	:srl regC, regA, regB is opx=0x1b {
+		regC = regA << (regB[4, 0]);
+	}
+	:nextpc regC is opx=0x1c {
+		regC = next_inst;
+	}
+	:callr regA is opx=0x1d {
+		ra = next_inst;
+		# TODO: save caller-saved registers
+		call regA;
+	}
+	:xor regC, regA, regB is opx=0x1e {
+		regC = (regA ^ regB);
+	}
+	:mulxss regC, regA_s, regB_s is opx=0x1f {
+		regC = (regA_s * regB_s)[63, 32];
+	}
+	:cmpeq regC, regA, regB is opx=0x20 {
+		regC = (regB == regA);
+	}
+	:divu regC, regA, regB is opx=0x24 {
+		regC = regA / regB;
+	}
+	:div regC, regA_s, regB_s is opx=0x25 {
+		regC = regA_s s/ regB_s;
+	}
+	:rdctl regC, ctlN is opx=0x26 {
+		regC = ctlN;
+	}
+	:mul regC, regA, regB is opx=0x27 {
+		regC = regA * regB;
+	}
+	:cmpgeu regC, regA, regB is opx=0x28 {
+		regC = (regA >= regB);
+	}
+	:initi regA is {} # initialize instruction cache
+	:trap imm5 is opx=0x2d {
+		unimp; # used to go to exception handler
+	}
+	:wrctl ctlN, regA is opx=0x2e {
+		ctlN = regA;
+	}
+	:cmpltu regC, regA, regB is opx=0x30 {
+		regC = (regA < regB);
+	}
+	with : opx=0x31
+		:add regC, regA, regB is regC!=zero & regB!=zero {
+			regC = regA + regB; #TODO: handle overflow
+		}
+		:mov regC, regA is regB=zero & regC !=zero {
+			regC = regA;
+		}
+		:nop is regC=zero {}
+	}
+	:break is opx=0x34 {
+		unimp; # used to go to debugger
+	}
+	:sync is opx=0x36 {} # Forces all pending memory accesses to complete before continuing
+	:sub regR, regA, regB is opx=0x39 {
+		regC = regA - regB;
+	}
+	:srai regC, regA_s, imm5 is opx=0x3a {
+		regC = regA >> imm5;
+	}
+	:sra regC, regA_s, regB is opx=0x3b {
+		regC = regA >> (regB[4, 0]);
+	}
+}
+
+### Custom instructions
+with : opcode=0x32 {
+	:custom customN, regC, regA, regB is {
+		unimp;
+	}
+}
