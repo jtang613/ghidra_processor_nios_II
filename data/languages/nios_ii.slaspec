@@ -64,6 +64,16 @@ attach variables [ctlN] [
 ];
 
 # Opcodes
+## J-type (opcode == 0)
+:call imm26 is opcode=0x00 & imm26 {
+	ra=inst_next;
+	# TODO: save caller-saved registers
+	call (imm26 * 4);
+}
+:jmpi imm26 is opcode=0x01 & imm26 {
+	goto (imm26 * 4)
+}
+
 ## R-type (opcode == 0x3a) sorted by OPX value
 with : opcode=0x3a {
 	:eret is opx=0x01 {
