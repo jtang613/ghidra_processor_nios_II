@@ -100,9 +100,8 @@ with : opcode=0x3a {
 	:cmpge regC, regA_s, regB_s is opx=0x08 {
 		regC = (regA_s >= regB_s);
 	}
-	:bret is opx=0x09 {
-		unimp; # used to return from debugger
 	}
+	:bret is opx=0x09 unimpl; # used to return from debugger
 	:ror regC, regA, regB is opx=0x0b {
 		#TODO: implement ROR
 	}
@@ -122,9 +121,7 @@ with : opcode=0x3a {
 	:sll regC, regA, regB is opx=0x13 {
 		regC = regA << (regB[4, 0]);
 	}
-	:wrprs regC, regA is opx=0x14 {
-		unimp; # Copies the value of regA in the current register set to regC in the previous register set.
-	}
+	:wrprs regC, regA is opx=0x14 unimpl # Copies the value of regA in the current register set to regC in the previous register set.
 	:or regC, regA, regB is opx=0x16 {
 		regC = regA | regB;
 	}
@@ -173,9 +170,7 @@ with : opcode=0x3a {
 		regC = (regA >= regB);
 	}
 	:initi regA is {} # initialize instruction cache
-	:trap imm5 is opx=0x2d {
-		unimp; # used to go to exception handler
-	}
+	:trap imm5 is opx=0x2d unimpl # used to go to exception handler
 	:wrctl ctlN, regA is opx=0x2e {
 		ctlN = regA;
 	}
@@ -191,9 +186,7 @@ with : opcode=0x3a {
 		}
 		:nop is regC=zero {}
 	}
-	:break is opx=0x34 {
-		unimp; # used to go to debugger
-	}
+	:break is opx=0x34 unimpl # used to go to debugger
 	:sync is opx=0x36 {} # Forces all pending memory accesses to complete before continuing
 	:sub regR, regA, regB is opx=0x39 {
 		regC = regA - regB;
@@ -208,9 +201,7 @@ with : opcode=0x3a {
 
 ### Custom instructions
 with : opcode=0x32 {
-	:custom customN, regC, regA, regB is {
-		unimp;
-	}
+	:custom customN, regC, regA, regB is unimpl
 }
 
 ## I-type
@@ -325,9 +316,7 @@ with : opcode=0x32 {
 :ldwio regB, imm16(^regA^) is opcode=0x37 {
 	regB = *:4 regA;
 }
-:rdprs regB, regA, imm16 {
-	unimp; # Read from the previous register set.
-}
+:rdprs regB, regA, imm16 unimpl # Read from the previous register set.
 :flushd imm16(^regA^) is opcode=0x3b {} # Flushes the data cache line associated with address rA + σ(IMM16).
 :xorhi regB, regA, imm16 is opcode=0x3c {
 	regB = regA ^ (imm16 << 16);
