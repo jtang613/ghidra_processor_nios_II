@@ -2,10 +2,11 @@
 
 define endian=little;
 
-define space register type=register_space size=4
+# Instruction addresses must be word-aligned
+define aligment=4;
 
-# TODO: define instruction-aligment instruction addresses must be word-aligned."
-# TODO: define ram space as DEFAULT
+define space register type=register_space size=4;
+define space RAM type=ram_space size=4 wordsize=1 default;
 
 # General-purpose registers (r0 to r31)
 define register offset=0 size=4 [
@@ -24,7 +25,7 @@ define register offset=32 size=4 [
 ];
 # TODO?: define status, estatus, bstatus, ienable, ipending, exception, pteaddr, tlbacc, tlbmisc, config, mpubase, mpuacc and eccinj as bitranges
 
-# Bit fields for the 3 instruction types
+# Tokens for the 3 instruction types
 define token instr (32)
 	opcode = (0, 5)
 # I-type specific
