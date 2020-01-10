@@ -119,7 +119,7 @@ with : opcode=0x3a {
 		regC = regA << imm5;
 	}
 	:sll regC, regA, regB is opx=0x13 {
-		regC = regA << (regB[4, 0]);
+		regC = regA << (regB[4, 4]);
 	}
 	:wrprs regC, regA is opx=0x14 unimpl # Copies the value of regA in the current register set to regC in the previous register set.
 	:or regC, regA, regB is opx=0x16 {
@@ -135,7 +135,7 @@ with : opcode=0x3a {
 		regC = regA << imm5;
 	}
 	:srl regC, regA, regB is opx=0x1b {
-		regC = regA << (regB[4, 0]);
+		regC = regA >> (regB[4, 4]);
 	}
 	:nextpc regC is opx=0x1c {
 		regC = next_inst;
@@ -195,7 +195,7 @@ with : opcode=0x3a {
 		regC = regA >> imm5;
 	}
 	:sra regC, regA_s, regB is opx=0x3b {
-		regC = regA >> (regB[4, 0]);
+		regC = regA_s s>> (regB[4, 4]);
 	}
 }
 
@@ -212,7 +212,7 @@ with : opcode=0x32 {
 	regB = regA + imm16
 }
 :stb regB. imm16(^regA^) is opcode=0x05 {
-	*:1 (regA + imm16) = regB[7, 0];
+	*:1 (regA + imm16) = regB[7, 8];
 }
 :br imm16 is opcode=0x06 {
 	goto (next_inst + imm16);
@@ -230,7 +230,7 @@ with : opcode=0x32 {
 	regB = regA & imm16;
 }
 :sth regB. imm16(^regA^) is opcode=0x0d {
-	*:2 (regA + imm16) = regB[15, 0];
+	*:2 (regA + imm16) = regB[15, 16];
 }
 :bge regA_s, regB_s, imm16 is opcode=0x0e {
 	if (regA_s >= regB_s) goto (next_inst + imm16);
@@ -274,7 +274,7 @@ with : opcode=0x32 {
 	regB = regA * imm16;
 }
 :stbio regB. imm16(^regA^) is opcode=0x25 {
-	*:1 (regA + imm16) = regB[7, 0];
+	*:1 (regA + imm16) = regB[7, 8];
 }
 :beq regA, regB, imm16 is opcode=0x26 {
 	if (regA == regB) goto (next_inst + imm16);
@@ -292,7 +292,7 @@ with : opcode=0x32 {
 	regB = regA & (imm16 << 16);
 }
 :sthio regB. imm16(^regA^) is opcode=0x2d {
-	*:2 (regA + imm16) = regB[15, 0];
+	*:2 (regA + imm16) = regB[15, 16];
 }
 :bgeu regA, regB, imm16 is opcode=0x2e {
 	if (regA >= regB) goto (next_inst + imm16);
