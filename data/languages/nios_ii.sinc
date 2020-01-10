@@ -1,3 +1,4 @@
+@define REG_SIZE 32
 # Opcodes
 ## J-type (opcode == 0)
 :call imm26 is opcode=0x00 & imm26 {
@@ -16,10 +17,12 @@ with : opcode=0x3a {
 		goto ea;
 	}
 	:roli regC, regA, imm5 is opx=0x02 {
-		#TODO: implement ROLI
+		local roll = imm5 % $(REG_SIZE);
+		regC = (regA << roll) | (regA >> ($(REG_SIZE) - roll));
 	}
 	:rol regC, regA, regB is opx=0x03 {
-		#TODO: implement ROL
+		local roll = regB[4, 5];
+		regC = (regA << roll) | (regA >> ($(REG_SIZE) - roll));
 	}
 	:flushp is opx=0x04 {} # flush prefetched instruction
 	:nor regC, regA, regB is opx=0x06 {
@@ -36,7 +39,8 @@ with : opcode=0x3a {
 	}
 	:bret is opx=0x09 unimpl; # used to return from debugger
 	:ror regC, regA, regB is opx=0x0b {
-		#TODO: implement ROR
+		local roll = regB[4, 5];
+		regC = (regA >> roll) | (regA << ($(REG_SIZE) - roll));
 	}
 	:flushi regA is opx=0x0c {} # flush instruction cache
 	:jmp regA is opx=0x0d {
