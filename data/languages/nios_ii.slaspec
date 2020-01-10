@@ -98,8 +98,7 @@ with : opcode=0x3a {
 		regC = (regA * regB)[63, 32];
 	}
 	:cmpge regC, regA_s, regB_s is opx=0x08 {
-		regC = (regA_s >= regB_s);
-	}
+		regC = (regA_s s>= regB_s);
 	}
 	:bret is opx=0x09 unimpl; # used to return from debugger
 	:ror regC, regA, regB is opx=0x0b {
@@ -113,7 +112,7 @@ with : opcode=0x3a {
 		regC = regA & regB;
 	}
 	:cmplt regC, regA_s, regB_s is opx=0x10 {
-		regC = (regA_s < regB_s);
+		regC = (regA_s s< regB_s);
 	}
 	:slli regC, regA, imm5 is opx=0x12 {
 		regC = regA << imm5;
@@ -132,7 +131,7 @@ with : opcode=0x3a {
 		regC = (regA != regB);
 	}
 	:srli regC, regA, imm5 is opx=0x1a {
-		regC = regA << imm5;
+		regC = regA >> imm5;
 	}
 	:srl regC, regA, regB is opx=0x1b {
 		regC = regA >> (regB[4, 4]);
@@ -192,7 +191,7 @@ with : opcode=0x3a {
 		regC = regA - regB;
 	}
 	:srai regC, regA_s, imm5 is opx=0x3a {
-		regC = regA >> imm5;
+		regC = regAi_s s>> imm5;
 	}
 	:sra regC, regA_s, regB is opx=0x3b {
 		regC = regA_s s>> (regB[4, 4]);
@@ -221,7 +220,7 @@ with : opcode=0x32 {
 	regB_s = *:1 regA;
 }
 :cmpgei regB, regA_s, imm16 is ocpode=0x08 {
-	regB = (regA_s >= imm16);
+	regB = (regA_s s>= imm16);
 }
 :ldhu regB, imm16(^regA^) is opcode=0x0b {
 	regB = *:2 regA;
@@ -233,13 +232,13 @@ with : opcode=0x32 {
 	*:2 (regA + imm16) = regB[15, 16];
 }
 :bge regA_s, regB_s, imm16 is opcode=0x0e {
-	if (regA_s >= regB_s) goto (next_inst + imm16);
+	if (regA_s s>= regB_s) goto (next_inst + imm16);
 }
 :ldh regB_s, imm16(^regA^) is opcode=0x0f {
 	regB_s = *:2 regA;
 }
 :cmplti regB, regA_s, imm16 is ocpode=0x10 {
-	regB = (regA_s < imm16);
+	regB = (regA_s s< imm16);
 }
 :initda imm16(^regA^) {} # Initializes the data cache line currently caching address rA + σ(IMM16)
 :ori regB, regA, imm16 is opcode=0x14 {
@@ -249,7 +248,7 @@ with : opcode=0x32 {
 	*:4 (regA + imm16) = regB;
 }
 :blt regA_s, regB_s, imm16 is opcode=0x16 {
-	if (regA_s < regB_s) goto (next_inst + imm16);
+	if (regA_s s< regB_s) goto (next_inst + imm16);
 }
 :ldw regB, imm16(^regA^) is opcode=0x17 {
 	regB = *:4 regA;
