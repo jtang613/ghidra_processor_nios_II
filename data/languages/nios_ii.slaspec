@@ -4,8 +4,8 @@ define endian=little;
 
 define space register type=register_space size=4
 
-# TODO: define instruction-aligment
-# TODO: define ram space
+# TODO: define instruction-aligment instruction addresses must be word-aligned."
+# TODO: define ram space as DEFAULT
 
 # General-purpose registers (r0 to r31)
 define register offset=0 size=4 [
