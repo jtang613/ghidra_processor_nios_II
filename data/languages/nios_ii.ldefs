@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="Altera Nios II"
+            endian="little"
+            size="32"
+            variant="default"
+            version="0.1"
+            slafile="nios_ii.sla"
+            processorspec="nios_ii.pspec"
+            manualindexfile="../manuals/nios_ii.idx"
+            id="NIOS_II:LE:32:default">
+    <description>Intel Altera Nios II Soft-Microprocessor Family</description>
+    <compiler name="default" spec="nios_ii.cspec" id="default"/>
+  </language>
+</language_definitions>
