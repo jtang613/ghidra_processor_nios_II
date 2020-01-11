@@ -1,0 +1,107 @@
+@n2cpu-nii5v1gen2.pdf[Nios II Processor Reference Guide -  Updated for Intel® Quartus® Prime Design Suite: 19.4]
+add, 172
+addi, 173
+and, 174
+andhi,175
+andi, 175
+beq, 176
+bge, 176
+bgeu, 177
+bgt,177
+bgtu, 178
+ble, 178
+bleu,178
+blt, 179
+bltu, 179
+bne, 180
+br,180
+break,181
+bret, 182
+call, 182
+callr,183
+cmpeq, 183
+cmpeqi,184
+cmpge, 184
+cmpgei,185
+cmpgeu,186
+cmpgeui, 186
+cmpgt, 187
+cmpgti, 187
+cmpgtu, 187
+cmpgtui, 188
+cmple, 188
+cmplei,188
+cmpleu,189
+cmpleui,189
+cmplt, 189
+cmplti, 190
+cmpltu, 191
+cmpltui, 191
+cmpne, 192
+cmpnei,192
+custom, 193
+div, 194
+divu,195
+eret, 195
+flushd, 196
+flushda,197
+flushi, 199
+flushp, 199
+initd, 200
+initda,201
+initi, 202
+jmp, 203
+jmpi, 203
+ldb, 204
+ldbio, 204
+ldbu, 205
+ldbuio, 205
+ldh, 206
+ldhio, 206
+ldhu, 207
+ldhuio, 207
+ldw, 208
+ldwio, 208
+mov,209
+movhi, 209
+movi,210
+movia, 210
+movui, 210
+mul, 211
+muli,212
+mulxss, 212
+mulxsu,213
+mulxuu, 214
+nextpc, 215
+nop, 215
+nor, 215
+or,216
+orhi, 216
+ori, 217
+rdctl, 217
+rdprs, 218
+ret,218
+rol, 219
+roli, 219
+ror, 220
+sll,220
+slli,221
+sra, 221
+srai,222
+srl, 222
+srli, 223
+stb, 223
+stbio, 223
+sth, 224
+sthio, 224
+stw, 225
+stwio, 225
+sub,226
+subi, 227
+sync, 227
+trap, 228
+wrctl,229
+wrprs,229
+xor, 230
+xorhi,230
+xori, 231
