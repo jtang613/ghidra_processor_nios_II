@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compiler_spec>
+	<data_organization>
+		<absolute_max_alignment value="0" />
+		<machine_alignment value="4" />
+		<default_alignment value="1" />
+		<default_pointer_alignment value="4" />
+		<pointer_size value="4" />
+		<short_size value="2" />
+		<integer_size value="4" />
+		<long_size value="4" />
+		<long_long_size value="8" />
+		<float_size value="4" />
+		<double_size value="8" />
+		<size_alignment_map>
+			<entry size="1" alignment="1" />
+			<entry size="2" alignment="2" />
+			<entry size="4" alignment="4" />
+			<entry size="8" alignment="4" />
+		</size_alignment_map>
+	</data_organization>
+
+	<global>
+		<range space="RAM" />
+	</global>
+
+	<readonly>
+		<register name="zero" />
+	</readonly>
+
+	<stackpointer register="sp" space="RAM" />
+	<returnaddress>
+		<register name="ra" />
+	</returnaddress>
+
+	<default_proto>
+		<prototype name="firstlevel_call" extrapop="0" stackshift="0" strategy="standard">
+			<input>
+				<pentry minsize="1" maxsize="4" align="1">
+					<register name="r4" />
+				</pentry>
+				<pentry minsize="2" maxsize="8" align="1">
+					<addr space="join" piece1="r4" piece2="r5" />
+				</pentry>
+				<pentry minsize="6" maxsize="12" align="1">
+					<addr space="join" piece1="r4" piece2="r5" piece3="r6"/>
+				</pentry>
+				<pentry minsize="10" maxsize="16" align="1">
+					<addr space="join" piece1="r4" piece2="r5" piece3="r6" piece4="r7" />
+				</pentry>
+				<pentry minsize="1" maxsize="4" align="1">
+					<register name="r5" />
+				</pentry>
+				<pentry minsize="2" maxsize="8" align="1">
+					<addr space="join" piece1="r5" piece2="r6" />
+				</pentry>
+				<pentry minsize="6" maxsize="12" align="1">
+					<addr space="join" piece1="r5" piece2="r6" piece3="r7"/>
+				</pentry>
+				<pentry minsize="1" maxsize="4" align="1">
+					<register name="r6" />
+				</pentry>
+				<pentry minsize="2" maxsize="8" align="1">
+					<addr space="join" piece1="r6" piece2="r7" />
+				</pentry>
+				<pentry minsize="1" maxsize="4" align="1">
+					<register name="r7" />
+				</pentry>
+				<pentry minsize="1" maxsize="500" align="1">
+					<addr space="stack" offset="0"/>
+				</pentry>
+			</input>
+			<output>
+				<pentry minsize="1" maxsize="4">
+					<register name="r2" />
+				</pentry>
+				<pentry minsize="2" maxsize="8" align="1">
+					<addr space="join" piece1="r2" piece2="r3" />
+				</pentry>
+				<pentry minsize="1" maxsize="4">
+					<register name="r3" />
+				</pentry>
+			</output>
+			<returnaddress>
+				<register name="ra" />
+			</returnaddress>
+			<unaffected>
+				<register name="r16" />
+				<register name="r17" />
+				<register name="r18" />
+				<register name="r19" />
+				<register name="r20" />
+				<register name="r21" />
+			</unaffected>
+			<killedbycall>
+				<register name="r8" />
+				<register name="r9" />
+				<register name="r10" />
+				<register name="r12" />
+				<register name="r13" />
+				<register name="r14" />
+				<register name="r15" />
+			</killedbycall>
+		</prototype>
+	</default_proto>
+
+</compiler_spec>
