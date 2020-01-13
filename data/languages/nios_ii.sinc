@@ -1,14 +1,14 @@
 @define REG_SIZE 32
 # Opcodes
 ## J-type (opcode == 0)
-:call imm26 is opcode=0x00 & imm26 {
+:call immed26 is opcode=0x00 & immed26 {
 	ra = inst_next;
 	# TODO: save caller-saved registers
-	local fct:4 = imm26 * 4;
+	local fct:4 = (inst_start & 0b00000000000000000000000000001111) | zext(immed26) * 4;
 	call [fct];
 }
-:jmpi imm26 is opcode=0x01 & imm26 {
-	local dest:4 = imm26 * 4;
+:jmpi immed26 is opcode=0x01 & immed26 {
+	local dest:4 = zext(immed26) * 4;
 	goto [dest];
 }
 
@@ -18,106 +18,106 @@ with : opcode=0x3a {
 		status = estatus;
 		return [ea];
 	}
-	:roli regC, regA, imm5 is opx=0x02 {
-		local roll = imm5 % $(REG_SIZE);
+	:roli regC, regA, immed5 is opx=0x02 & regC & regA & immed5 {
+		local roll = immed5 % $(REG_SIZE);
 		regC = (regA << roll) | (regA >> ($(REG_SIZE) - roll));
 	}
-	:rol regC, regA, regB is opx=0x03 {
+	:rol regC, regA, regB is opx=0x03 & regA & regB & regC {
 		local roll = regB[4, 5];
 		regC = (regA << roll) | (regA >> ($(REG_SIZE) - roll));
 	}
 	:flushp is opx=0x04 {} # flush prefetched instruction
-	:nor regC, regA, regB is opx=0x06 {
+	:nor regC, regA, regB is opx=0x06 & regA & regB & regC {
 		regC = ~(regA | regB);
 	}
 	:ret is opx=0x05 {
 		return [ra];
 	}
-	:mulxuu regC, regA, regB is opx=0x07 {
+	:mulxuu regC, regA, regB is opx=0x07 & regA & regB & regC {
 		regC = (regA * regB) >> 32;
 	}
-	:cmpge regC, regA_s, regB_s is opx=0x08 {
+	:cmpge regC, regA_s, regB_s is opx=0x08 & regA_s & regB_s & regC {
 		regC = zext(regA_s s>= regB_s);
 	}
 	:bret is opx=0x09 unimpl # used to return from debugger
-	:ror regC, regA, regB is opx=0x0b {
+	:ror regC, regA, regB is opx=0x0b & regA & regB & regC {
 		local roll = regB[4, 5];
 		regC = (regA >> roll) | (regA << ($(REG_SIZE) - roll));
 	}
-	:flushi regA is opx=0x0c {} # flush instruction cache
-	:jmp regA is opx=0x0d {
+	:flushi regA is opx=0x0c & regA {} # flush instruction cache
+	:jmp regA is opx=0x0d & regA {
 		goto regA;
 	}
-	:and regC, regA, regB is opx=0x0e {
+	:and regC, regA, regB is opx=0x0e & regA & regB & regC {
 		regC = regA & regB;
 	}
-	:cmplt regC, regA_s, regB_s is opx=0x10 {
+	:cmplt regC, regA_s, regB_s is opx=0x10 & regC & regB_s & regA_s {
 		regC = zext(regA_s s< regB_s);
 	}
-	:slli regC, regA, imm5 is opx=0x12 {
-		regC = regA << imm5;
+	:slli regC, regA, immed5 is opx=0x12 & regA & regC & immed5 {
+		regC = regA << immed5;
 	}
-	:sll regC, regA, regB is opx=0x13 {
+	:sll regC, regA, regB is opx=0x13 & regA & regB & regC {
 		regC = regA << (regB[4, 4]);
 	}
-	:wrprs regC, regA is opx=0x14 unimpl # Copies the value of regA in the current register set to regC in the previous register set.
-	:or regC, regA, regB is opx=0x16 {
+	:wrprs regC, regA is opx=0x14 & regC & regA unimpl # Copies the value of regA in the current register set to regC in the previous register set.
+	:or regC, regA, regB is opx=0x16 & regA & regB & regC {
 		regC = regA | regB;
 	}
-	:mulxsu regC, regA_s, regB is opx=0x17 {
+	:mulxsu regC, regA_s, regB is opx=0x17 & regC & regB & regA_s {
 		regC = (regA_s * regB) >> 32;
 	}
-	:cmpne regC, regA, regB is opx=0x18 {
+	:cmpne regC, regA, regB is opx=0x18 & regA & regB & regC {
 		regC = zext(regA != regB);
 	}
-	:srli regC, regA, imm5 is opx=0x1a {
-		regC = regA >> imm5;
+	:srli regC, regA, immed5 is opx=0x1a & regA & regC & immed5 {
+		regC = regA >> immed5;
 	}
-	:srl regC, regA, regB is opx=0x1b {
+	:srl regC, regA, regB is opx=0x1b & regA & regB & regC {
 		regC = regA >> (regB[4, 4]);
 	}
-	:nextpc regC is opx=0x1c {
+	:nextpc regC is opx=0x1c & regC {
 		regC = inst_next;
 	}
-	:callr regA is opx=0x1d {
+	:callr regA is opx=0x1d & regA {
 		ra = inst_next;
 		# TODO: save caller-saved registers
 		call regA;
 	}
-	:xor regC, regA, regB is opx=0x1e {
+	:xor regC, regA, regB is opx=0x1e & regA & regB & regC {
 		regC = (regA ^ regB);
 	}
-	:mulxss regC, regA_s, regB_s is opx=0x1f {
+	:mulxss regC, regA_s, regB_s is opx=0x1f & regC & regB_s & regA_s {
 		regC = (regA_s * regB_s) >> 32;
 	}
-	:cmpeq regC, regA, regB is opx=0x20 {
+	:cmpeq regC, regA, regB is opx=0x20 & regA & regB & regC {
 		regC = zext(regB == regA);
 	}
-	:divu regC, regA, regB is opx=0x24 {
+	:divu regC, regA, regB is opx=0x24 & regA & regB & regC {
 		regC = regA / regB;
 	}
-	:div regC, regA_s, regB_s is opx=0x25 {
+	:div regC, regA_s, regB_s is opx=0x25 & regC & regB_s & regA_s {
 		regC = regA_s s/ regB_s;
 	}
-	:rdctl regC, ctlN is opx=0x26 {
+	:rdctl regC, ctlN is opx=0x26 & regC & ctlN {
 		regC = ctlN;
 	}
-	:mul regC, regA, regB is opx=0x27 {
+	:mul regC, regA, regB is opx=0x27 & regA & regB & regC {
 		regC = regA * regB;
 	}
-	:cmpgeu regC, regA, regB is opx=0x28 {
+	:cmpgeu regC, regA, regB is opx=0x28 & regA & regB & regC {
 		regC = zext(regA >= regB);
 	}
-	:initi regA is opx=29 {} # initialize instruction cache
-	:trap imm5 is opx=0x2d unimpl # used to go to exception handler
-	:wrctl ctlN, regA is opx=0x2e {
+	:initi regA is opx=0x29 & regA {} # initialize instruction cache
+	:trap immed5 is opx=0x2d & immed5 unimpl # used to go to exception handler
+	:wrctl ctlN, regA is opx=0x2e & ctlN & regA {
 		ctlN = regA;
 	}
-	:cmpltu regC, regA, regB is opx=0x30 {
+	:cmpltu regC, regA, regB is opx=0x30 & regA & regB & regC {
 		regC = zext(regA < regB);
 	}
 	with : opx=0x31 {
-		:add regC, regA, regB is opx=0x31 {
+		:add regC, regA, regB is opx=0x31 & regA & regB & regC {
 			regC = regA + regB; #TODO: handle overflow
 		}
 		#:mov regC, regA is regB=0 & regC !=0 {
@@ -127,154 +127,154 @@ with : opcode=0x3a {
 	}
 	:break is opx=0x34 unimpl # used to go to debugger
 	:sync is opx=0x36 {} # Forces all pending memory accesses to complete before continuing
-	:sub regC, regA, regB is opx=0x39 {
+	:sub regC, regA, regB is opx=0x39 & regA & regB & regC {
 		regC = regA - regB;
 	}
-	:srai regC_s, regA_s, imm5 is opx=0x3a {
-		regC_s = regA_s s>> imm5;
+	:srai regC_s, regA_s, immed5 is opx=0x3a & regC_s & regA_s & immed5 {
+		regC_s = regA_s s>> immed5;
 	}
-	:sra regC, regA_s, regB is opx=0x3b {
+	:sra regC, regA_s, regB is opx=0x3b & regC & regB & regA_s {
 		regC = regA_s s>> (regB[4, 4]);
 	}
 }
 
 ### Custom instructions
-:custom customN, regC, regA, regB is opcode=0x32 unimpl
+:custom customN, regC, regA, regB is opcode=0x32 & customN & regC & regB & regA unimpl
 
 ## I-type
-:ldbu regB, imm16(^regA^) is opcode=0x03 {
-	regB = zext(*:1 (regA + sext(imm16)));
+:ldbu regB, immed16(^regA^) is opcode=0x03 & immed16 & regA & regB {
+	regB = zext(*:1 (regA + sext(immed16)));
 }
-:addi regB, regA, imm16 is opcode=0x04 {
-	regB = regA + sext(imm16);
+:addi regB, regA, immed16 is opcode=0x04 & immed16 & regA & regB {
+	regB = regA + sext(immed16);
 }
-:stb regB, imm16(^regA^) is opcode=0x05 {
-	*:1 (regA + sext(imm16)) = regB[7, 8];
+:stb regB, immed16(^regA^) is opcode=0x05 & immed16 & regA & regB {
+	*:1 (regA + sext(immed16)) = regB[7, 8];
 }
-:br imm16 is opcode=0x06 {
-	local dest:4 = inst_next + sext(imm16);
+:br immed16 is opcode=0x06 & immed16 {
+	local dest:4 = inst_next + sext(immed16);
 	goto [dest];
 }
-:ldb regB_s, imm16(^regA^) is opcode=0x07 {
-	regB_s = sext(*:1 (regA + sext(imm16)));
+:ldb regB_s, immed16(^regA^) is opcode=0x07 & immed16 & regB_s & regA {
+	regB_s = sext(*:1 (regA + sext(immed16)));
 }
-:cmpgei regB, regA_s, imm16 is opcode=0x08 {
-	regB = zext(regA_s s>= sext(imm16));
+:cmpgei regB, regA_s, immed16 is opcode=0x08 & immed16 & regA_s & regB {
+	regB = zext(regA_s s>= sext(immed16));
 }
-:ldhu regB, imm16(^regA^) is opcode=0x0b {
-	regB = zext(*:2 (regA + sext(imm16)));
+:ldhu regB, immed16(^regA^) is opcode=0x0b & immed16 & regA & regB {
+	regB = zext(*:2 (regA + sext(immed16)));
 }
-:andi regB, regA, imm16 is opcode=0x0c {
-	regB = regA & zext(imm16);
+:andi regB, regA, immed16 is opcode=0x0c & immed16 & regA & regB {
+	regB = regA & zext(immed16);
 }
-:sth regB, imm16(^regA^) is opcode=0x0d {
-	*:2 (regA + sext(imm16)) = regB[15, 16];
+:sth regB, immed16(^regA^) is opcode=0x0d & immed16 & regA & regB {
+	*:2 (regA + sext(immed16)) = regB[15, 16];
 }
-:bge regA_s, regB_s, imm16 is opcode=0x0e {
-	local dest:4 = inst_next + sext(imm16);
+:bge regA_s, regB_s, immed16 is opcode=0x0e & immed16 & regB_s & regA_s {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA_s s>= regB_s) goto <end>;
 		 goto [dest];
 	<end>
 }
-:ldh regB_s, imm16(^regA^) is opcode=0x0f {
-	regB_s = sext(*:2 (regA + sext(imm16)));
+:ldh regB_s, immed16(^regA^) is opcode=0x0f & immed16 & regB_s & regA {
+	regB_s = sext(*:2 (regA + sext(immed16)));
 }
-:cmplti regB, regA_s, imm16 is opcode=0x10 {
-	regB = zext(regA_s s< sext(imm16));
+:cmplti regB, regA_s, immed16 is opcode=0x10 & immed16 & regA_s & regB {
+	regB = zext(regA_s s< sext(immed16));
 }
-:initda imm16(^regA^) is opcode=0x13 {} # Initializes the data cache line currently caching address rA + sext(IMM16)
-:ori regB, regA, imm16 is opcode=0x14 {
-	regB = regA | zext(imm16);
+:initda immed16(^regA^) is opcode=0x13 & immed16 & regA {} # Initializes the data cache line currently caching address rA + sext(IMM16)
+:ori regB, regA, immed16 is opcode=0x14 & immed16 & regA & regB {
+	regB = regA | zext(immed16);
 }
-:stw regB, imm16(^regA^) is opcode=0x15 {
-	*:4 (regA + sext(imm16)) = regB;
+:stw regB, immed16(^regA^) is opcode=0x15 & immed16 & regA & regB {
+	*:4 (regA + sext(immed16)) = regB;
 }
-:blt regA_s, regB_s, imm16 is opcode=0x16 {
-	local dest:4 = inst_next + sext(imm16);
+:blt regA_s, regB_s, immed16 is opcode=0x16 & immed16 & regB_s & regA_s {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA_s s< regB_s) goto <end>;
 		goto [dest];
 	<end>
 }
-:ldw regB, imm16(^regA^) is opcode=0x17 {
-	regB = *:4 (regA + sext(imm16));
+:ldw regB, immed16(^regA^) is opcode=0x17 & immed16 & regA & regB {
+	regB = *:4 (regA + sext(immed16));
 }
-:cmpnei regB, regA, imm16 is opcode=0x18 {
-	regB = zext(regA != sext(imm16));
+:cmpnei regB, regA, immed16 is opcode=0x18 & immed16 & regA & regB {
+	regB = zext(regA != sext(immed16));
 }
-:flushda imm16(^regA^) is opcode=0x1b {} # Flushes the data cache line currently caching address rA + sext(IMM16).
-:xori regB, regA, imm16 is opcode=0x1c {
-	regB = regA ^ zext(imm16);
+:flushda immed16(^regA^) is opcode=0x1b & immed16 & regA {} # Flushes the data cache line currently caching address rA + sext(IMM16).
+:xori regB, regA, immed16 is opcode=0x1c & immed16 & regA & regB {
+	regB = regA ^ zext(immed16);
 }
-:bne regA, regB, imm16 is opcode=0x1e {
-	local dest:4 = inst_next + sext(imm16);
+:bne regA, regB, immed16 is opcode=0x1e & immed16 & regA & regB {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA != regB) goto <end>;
 		goto [dest];
 	<end>
 }
-:cmpeqi regB, regA, imm16 is opcode=0x20 {
-	regB = zext(regA == sext(imm16));
+:cmpeqi regB, regA, immed16 is opcode=0x20 & immed16 & regA & regB {
+	regB = zext(regA == sext(immed16));
 }
-:ldbuio regB, imm16(^regA^) is opcode=0x23 {
-	regB = zext(*:1 (regA + sext(imm16)));
+:ldbuio regB, immed16(^regA^) is opcode=0x23 & immed16 & regA & regB {
+	regB = zext(*:1 (regA + sext(immed16)));
 }
-:muli regB, regA, imm16 is opcode=0x24 {
-	regB = regA * zext(imm16);
+:muli regB, regA, immed16 is opcode=0x24 & immed16 & regA & regB {
+	regB = regA * zext(immed16);
 }
-:stbio regB, imm16(^regA^) is opcode=0x25 {
-	*:1 (regA + sext(imm16)) = regB[7, 8];
+:stbio regB, immed16(^regA^) is opcode=0x25 & immed16 & regA & regB {
+	*:1 (regA + sext(immed16)) = regB[7, 8];
 }
-:beq regA, regB, imm16 is opcode=0x26 {
-	local dest:4 = inst_next + sext(imm16);
+:beq regA, regB, immed16 is opcode=0x26 & immed16 & regA & regB {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA == regB) goto <end>;
 		goto [dest];
 	<end>
 }
-:ldbio regB_s, imm16(^regA^) is opcode=0x27 {
-	regB_s = sext(*:1 (regA + sext(imm16)));
+:ldbio regB_s, immed16(^regA^) is opcode=0x27 & immed16 & regB_s & regA {
+	regB_s = sext(*:1 (regA + sext(immed16)));
 }
-:cmpgeui regB, regA, imm16_u is opcode=0x28 {
-	regB = zext(regA >= zext(imm16_u));
+:cmpgeui regB, regA, immed16_u is opcode=0x28 & immed16_u & regA & regB {
+	regB = zext(regA >= zext(immed16_u));
 }
-:ldhuio regB, imm16(^regA^) is opcode=0x2b {
-	regB = zext(*:2 (regA + sext(imm16)));
+:ldhuio regB, immed16(^regA^) is opcode=0x2b & immed16 & regA & regB {
+	regB = zext(*:2 (regA + sext(immed16)));
 }
-:andhi regB, regA, imm16 is opcode=0x2c {
-	regB = regA & (imm16 << 16);
+:andhi regB, regA, immed16 is opcode=0x2c & immed16 & regA & regB {
+	regB = regA & (zext(immed16) << 16);
 }
-:sthio regB, imm16(^regA^) is opcode=0x2d {
-	local location = regA + sext(imm16);
+:sthio regB, immed16(^regA^) is opcode=0x2d & immed16 & regA & regB {
+	local location = regA + sext(immed16);
 	*:2	location  = regB[15, 16];
 }
-:bgeu regA, regB, imm16 is opcode=0x2e {
-	local dest:4 = inst_next + sext(imm16);
+:bgeu regA, regB, immed16 is opcode=0x2e & immed16 & regA & regB {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA >= regB) goto <end>;
 		goto [dest];
 	<end>
 }
-:ldhio regB_s, imm16(^regA^) is opcode=0x2f {
-	regB_s = sext(*:2 (regA + sext(imm16)));
+:ldhio regB_s, immed16(^regA^) is opcode=0x2f & immed16 & regB_s & regA {
+	regB_s = sext(*:2 (regA + sext(immed16)));
 }
-:cmpltui regB, regA, imm16_u is opcode=0x30 {
-	regB = zext(regA < zext(imm16_u));
+:cmpltui regB, regA, immed16_u is opcode=0x30 & immed16_u & regA & regB {
+	regB = zext(regA < zext(immed16_u));
 }
-:initd imm16(^regA^) is opcode=0x33 {} # Initializes the data cache line associated with address rA + sext(IMM16).
-:orhi regB, regA, imm16 is opcode=0x34 {
-	regB = regA | (imm16 << 16);
+:initd immed16(^regA^) is opcode=0x33 & immed16 & regA {} # Initializes the data cache line associated with address rA + sext(IMM16).
+:orhi regB, regA, immed16 is opcode=0x34 & immed16 & regA & regB {
+	regB = regA | (zext(immed16) << 16);
 }
-:stwio regB, imm16(^regA^) is opcode=0x35 {
-	*:4 (regA + sext(imm16)) = regB;
+:stwio regB, immed16(^regA^) is opcode=0x35 & immed16 & regA & regB {
+	*:4 (regA + sext(immed16)) = regB;
 }
-:bltu regA, regB, imm16 is opcode=0x36 {
-	local dest:4 = inst_next + sext(imm16);
+:bltu regA, regB, immed16 is opcode=0x36 & immed16 & regA & regB {
+	local dest:4 = inst_next + sext(immed16);
 	if (regA < regB) goto <end>;
 		goto [dest];
 	<end>
 }
-:ldwio regB, imm16(^regA^) is opcode=0x37 {
-	regB = *:4 (regA + sext(imm16));
+:ldwio regB, immed16(^regA^) is opcode=0x37 & immed16 & regA & regB {
+	regB = *:4 (regA + sext(immed16));
 }
-:rdprs regB, regA, imm16 is opcode=0x38 unimpl # Read from the previous register set.
-:flushd imm16(^regA^) is opcode=0x3b {} # Flushes the data cache line associated with address rA + sext(IMM16).
-:xorhi regB, regA, imm16 is opcode=0x3c {
-	regB = regA ^ (imm16 << 16);
+:rdprs regB, regA, immed16 is opcode=0x38 & regB & regA & immed16 unimpl # Read from the previous register set.
+:flushd immed16(^regA^) is opcode=0x3b & immed16 & regA {} # Flushes the data cache line associated with address rA + sext(IMM16).
+:xorhi regB, regA, immed16 is opcode=0x3c & immed16 & regA & regB {
+	regB = regA ^ (zext(immed16) << 16);
 }
