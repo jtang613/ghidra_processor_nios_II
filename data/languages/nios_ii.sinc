@@ -4,17 +4,19 @@
 :call imm26 is opcode=0x00 & imm26 {
 	ra=inst_next;
 	# TODO: save caller-saved registers
-	call (imm26 * 4);
+	local fct:4 = imm26 * 4;
+	call [fct];
 }
 :jmpi imm26 is opcode=0x01 & imm26 {
-	goto (imm26 * 4)
+	local dest:4 = imm26 * 4;
+	goto [dest];
 }
 
 ## R-type (opcode == 0x3a) sorted by OPX value
 with : opcode=0x3a {
 	:eret is opx=0x01 {
 		status = estatus;
-		goto ea;
+		return [ea];
 	}
 	:roli regC, regA, imm5 is opx=0x02 {
 		local roll = imm5 % $(REG_SIZE);
@@ -29,7 +31,7 @@ with : opcode=0x3a {
 		regC = ~(regA | regB);
 	}
 	:ret is opx=0x05 {
-		goto ra;
+		return [ra];
 	}
 	:mulxuu regC, regA, regB is opx=0x07 {
 		regC = (regA * regB)[63, 32];
@@ -37,7 +39,7 @@ with : opcode=0x3a {
 	:cmpge regC, regA_s, regB_s is opx=0x08 {
 		regC = (regA_s s>= regB_s);
 	}
-	:bret is opx=0x09 unimpl; # used to return from debugger
+	:bret is opx=0x09 unimpl # used to return from debugger
 	:ror regC, regA, regB is opx=0x0b {
 		local roll = regB[4, 5];
 		regC = (regA >> roll) | (regA << ($(REG_SIZE) - roll));
@@ -152,7 +154,8 @@ with : opcode=0x32 {
 	*:1 (regA + sext(imm16)) = regB[7, 8];
 }
 :br imm16 is opcode=0x06 {
-	goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	goto [dest];
 }
 :ldb regB_s, imm16(^regA^) is opcode=0x07 {
 	regB_s = sext(*:1 (regA + sext(imm16)));
@@ -170,7 +173,10 @@ with : opcode=0x32 {
 	*:2 (regA + sext(imm16)) = regB[15, 16];
 }
 :bge regA_s, regB_s, imm16 is opcode=0x0e {
-	if (regA_s s>= regB_s) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA_s s>= regB_s) goto <end>;
+		 goto [dest];
+	<end>
 }
 :ldh regB_s, imm16(^regA^) is opcode=0x0f {
 	regB_s = sext(*:2 (regA + sext(imm16));
@@ -186,7 +192,10 @@ with : opcode=0x32 {
 	*:4 (regA + sext(imm16)) = regB;
 }
 :blt regA_s, regB_s, imm16 is opcode=0x16 {
-	if (regA_s s< regB_s) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA_s s< regB_s) goto <end>;
+		goto [dest];
+	<end>
 }
 :ldw regB, imm16(^regA^) is opcode=0x17 {
 	regB = *:4 (regA + sext(imm16));
@@ -199,7 +208,10 @@ with : opcode=0x32 {
 	regB = regA ^ zext(imm16);
 }
 :bne regA, regB, imm16 is opcode=0x1e {
-	if (regA != regB) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA != regB) goto <end>;
+		goto [dest];
+	<end>
 }
 :cmpeqi regB, regA, imm16 is opcode=0x20 {
 	regB = (regA == sext(imm16));
@@ -214,7 +226,10 @@ with : opcode=0x32 {
 	*:1 (regA + sext(imm16)) = regB[7, 8];
 }
 :beq regA, regB, imm16 is opcode=0x26 {
-	if (regA == regB) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA == regB) goto <end>;
+		goto [dest];
+	<end>
 }
 :ldbio regB_s, imm16(^regA^) is opcode=0x27 {
 	regB_s = sext(*:1 (regA + sext(imm16)));
@@ -228,11 +243,15 @@ with : opcode=0x32 {
 :andhi regB, regA, imm16 is opcode=0x2c {
 	regB = regA & (imm16 << 16);
 }
+	*:2	location  = regB[15, 16];
 :sthio regB. imm16(^regA^) is opcode=0x2d {
 	*:2 (regA + sext(imm16)) = regB[15, 16];
 }
 :bgeu regA, regB, imm16 is opcode=0x2e {
-	if (regA >= regB) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA >= regB) goto <end>;
+		goto [dest];
+	<end>
 }
 :ldhio regB_s, imm16(^regA^) is opcode=0x2f {
 	regB_s = sext(*:2 (regA + sext(imm16)));
@@ -248,7 +267,10 @@ with : opcode=0x32 {
 	*:4 (regA + sext(imm16)) = regB;
 }
 :bltu regA, regB, imm16 is opcode=0x36 {
-	if (regA < regB) goto (next_inst + sext(imm16));
+	local dest:4 = inst_next + sext(imm16);
+	if (regA < regB) goto <end>;
+		goto [dest];
+	<end>
 }
 :ldwio regB, imm16(^regA^) is opcode=0x37 {
 	regB = *:4 (regA + sext(imm16));
