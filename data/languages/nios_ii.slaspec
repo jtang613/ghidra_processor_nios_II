@@ -17,7 +17,7 @@ define register offset=0 size=4 [
 ];
 
 # Control registers (Reserved registers are marked as ctlX)
-define register offset=32 size=4 [
+define register offset=0x80 size=4 [
 	status  estatus bstatus ienable ipending cpuid  ctl6    exception
 	pteaddr tlbacc  tlbmisc eccinj  badaddr  config mpubase mpuacc
 	ctl16   ctl17   ctl18   ctl19   ctl20    ctl21  ctl22   ctl23
