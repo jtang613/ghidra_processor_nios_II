@@ -66,18 +66,5 @@ attach variables [ ctlN ] [
 	ctl24   ctl25   ctl26   ctl27   ctl28    ctl29  ctl30   ctl31
 ];
 
-immed26: imm26 is imm26 {
-	export *[const]:1 imm26;
-}
-immed16: imm16 is imm16 {
-	export *[const]:1 imm16;
-}
-immed16_u: imm16_u is imm16_u {
-	export *[const]:1 imm16_u;
-}
-immed5: imm5 is imm5 {
-	export *[const]:1 imm5;
-}
-
 # Include definition of opcodes
 @include "nios_ii.sinc"
