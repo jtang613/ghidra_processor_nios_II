@@ -36,13 +36,10 @@ define token instr (32)
 	imm16_u = (6, 21)
 	regB = (22, 26)
 	regA = (27, 31)
-	regB_s = (22, 26) signed
-	regA_s = (27, 31) signed
 # R-type specific
 	opx_full = (6, 16)
 	opx = (11, 16)
 	regC = (17, 21)
-	regC_s = (17, 21) signed
 	ctlN = (6, 10)
 	imm5 = (6, 10)
 # J-type specific
@@ -55,7 +52,7 @@ define token instr (32)
 ;
 
 # Bind register fields to actual registers
-attach variables [ regC regB regA regA_s regB_s regC_s] [
+attach variables [ regC regB regA ] [
 	zero  r1  r2  r3  r4  r5  r6      r7
 	r8    r9  r10 r11 r12 r13 r14     r15
 	r16   r17 r18 r19 r20 r21 r22     r23
