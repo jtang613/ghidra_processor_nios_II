@@ -1,15 +1,12 @@
 @define REG_SIZE 32
 # Opcodes
 ## J-type (opcode == 0)
-:call immed26 is opcode=0x00 & immed26 {
+:call target is opcode=0x00 & imm26 [ target = (inst_start & 0x0000000F) | ((imm26 * 4) & 0xFFFFFFF0); ]{
 	ra = inst_next;
-	# TODO: save caller-saved registers
-	local fct:4 = (inst_start & 0b00000000000000000000000000001111) | zext(immed26) * 4;
-	call [fct];
+	call [target:4];
 }
-:jmpi immed26 is opcode=0x01 & immed26 {
-	local dest:4 = zext(immed26) * 4;
-	goto [dest];
+:jmpi target is opcode=0x01 & imm26 [ target = (inst_start & 0x0000000F) | ((imm26 * 4) & 0xFFFFFFF0); ] {
+	goto [target:4];
 }
 
 ## R-type (opcode == 0x3a) sorted by OPX value
@@ -46,7 +43,7 @@ with : opcode=0x3a {
 	}
 	:flushi regA is opx=0x0c & regA {} # flush instruction cache
 	:jmp regA is opx=0x0d & regA {
-		goto regA;
+		goto [regA];
 	}
 	:and regC, regA, regB is opx=0x0e & regA & regB & regC {
 		regC = regA & regB;
@@ -82,7 +79,7 @@ with : opcode=0x3a {
 	:callr regA is opx=0x1d & regA {
 		ra = inst_next;
 		# TODO: save caller-saved registers
-		call regA;
+		call [regA];
 	}
 	:xor regC, regA, regB is opx=0x1e & regA & regB & regC {
 		regC = (regA ^ regB);
@@ -151,7 +148,7 @@ with : opcode=0x3a {
 :stb regB, imm16(^regA^) is opcode=0x05 & imm16 & regA & regB {
 	*:1 (regA + sext(imm16:2)) = regB[7, 8];
 }
-:br imm16 is opcode=0x06 & imm16 {
+:br target is opcode=0x06 & imm16 [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	goto [dest];
 }
@@ -170,7 +167,7 @@ with : opcode=0x3a {
 :sth regB, imm16(^regA^) is opcode=0x0d & imm16 & regA & regB {
 	*:2 (regA + sext(imm16:2)) = regB[15, 16];
 }
-:bge regA_s, regB_s, imm16 is opcode=0x0e & imm16 & regB_s & regA_s {
+:bge regA_s, regB_s, target is opcode=0x0e & imm16 & regB_s & regA_s [ target = inst_next + imm16; ]{
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA_s s>= regB_s) goto <end>;
 		 goto [dest];
@@ -189,7 +186,7 @@ with : opcode=0x3a {
 :stw regB, imm16(^regA^) is opcode=0x15 & imm16 & regA & regB {
 	*:4 (regA + sext(imm16:2)) = regB;
 }
-:blt regA_s, regB_s, imm16 is opcode=0x16 & imm16 & regB_s & regA_s {
+:blt regA_s, regB_s, target is opcode=0x16 & imm16 & regB_s & regA_s [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA_s s< regB_s) goto <end>;
 		goto [dest];
@@ -205,7 +202,7 @@ with : opcode=0x3a {
 :xori regB, regA, imm16 is opcode=0x1c & imm16 & regA & regB {
 	regB = regA ^ zext(imm16:2);
 }
-:bne regA, regB, imm16 is opcode=0x1e & imm16 & regA & regB {
+:bne regA, regB, target is opcode=0x1e & imm16 & regA & regB [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA != regB) goto <end>;
 		goto [dest];
@@ -223,7 +220,7 @@ with : opcode=0x3a {
 :stbio regB, imm16(^regA^) is opcode=0x25 & imm16 & regA & regB {
 	*:1 (regA + sext(imm16:2)) = regB[7, 8];
 }
-:beq regA, regB, imm16 is opcode=0x26 & imm16 & regA & regB {
+:beq regA, regB, target is opcode=0x26 & imm16 & regA & regB [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA == regB) goto <end>;
 		goto [dest];
@@ -245,7 +242,7 @@ with : opcode=0x3a {
 	local location = regA + sext(imm16:2);
 	*:2	location  = regB[15, 16];
 }
-:bgeu regA, regB, imm16 is opcode=0x2e & imm16 & regA & regB {
+:bgeu regA, regB, target is opcode=0x2e & imm16 & regA & regB [ target = inst_next + imm16; ]{
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA >= regB) goto <end>;
 		goto [dest];
@@ -264,7 +261,7 @@ with : opcode=0x3a {
 :stwio regB, imm16(^regA^) is opcode=0x35 & imm16 & regA & regB {
 	*:4 (regA + sext(imm16:2)) = regB;
 }
-:bltu regA, regB, imm16 is opcode=0x36 & imm16 & regA & regB {
+:bltu regA, regB, target is opcode=0x36 & imm16 & regA & regB [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA < regB) goto <end>;
 		goto [dest];
