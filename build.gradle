@@ -1,0 +1,28 @@
+apply plugin: 'eclipse'
+apply plugin: 'java'
+
+// Pull in the Ghidra Gradle plugins
+if (System.env.GHIDRA_INSTALL_DIR) {
+    apply from: "$System.env.GHIDRA_INSTALL_DIR/support/buildExtension.gradle"
+}
+
+// Define your project properties
+def EXTENSION_NAME = 'Nios2Processor'
+def EXTENSION_CLASS = 'ghidra.processor.nios2.Nios2Analyzer'
+
+dependencies {
+    // Add any additional dependencies here
+}
+
+// Set extension properties
+ext.EXTENSION_NAME = EXTENSION_NAME
+ext.EXTENSION_CLASS = EXTENSION_CLASS
+
+// Configure source sets
+sourceSets {
+    main {
+        resources {
+            srcDirs "data"
+        }
+    }
+}
