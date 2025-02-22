@@ -1,11 +1,11 @@
 @define REG_SIZE 32
 # Opcodes
 ## J-type (opcode == 0)
-:call target is opcode=0x00 & imm26 [ target = (inst_start & 0x0000000F) | ((imm26 * 4) & 0xFFFFFFF0); ]{
+:call target is opcode=0x00 & imm26 [ target = (imm26 << 2); ]{
 	ra = inst_next;
 	call [target:4];
 }
-:jmpi target is opcode=0x01 & imm26 [ target = (inst_start & 0x0000000F) | ((imm26 * 4) & 0xFFFFFFF0); ] {
+:jmpi target is opcode=0x01 & imm26 [ target = (imm26 << 2); ] {
 	goto [target:4];
 }
 
@@ -117,10 +117,12 @@ with : opcode=0x3a {
 		:add regC, regA, regB is opx=0x31 & regA & regB & regC {
 			regC = regA + regB; #TODO: handle overflow
 		}
-		#:mov regC, regA is regB=0 & regC !=0 {
-		#	regC = regA;
-		#}
-		#:nop is regC=zero {}
+		:mov regC, regA is opx=0x31 & regA & regB=0 & regC {
+			regC = regA;
+		}
+		:nop is opx=0x31 & regA=0 & regB=0 & regC=0 {
+			# No operation
+		}
 	}
 	:break is opx=0x34 unimpl # used to go to debugger
 	:sync is opx=0x36 {} # Forces all pending memory accesses to complete before continuing
@@ -144,6 +146,9 @@ with : opcode=0x3a {
 }
 :addi regB, regA, imm16 is opcode=0x04 & imm16 & regA & regB {
 	regB = regA + sext(imm16:2);
+}
+:movi regB, imm16 is opcode=0x04 & imm16 & regA=0 & regB {
+    regB = sext(imm16:2);
 }
 :stb regB, imm16(^regA^) is opcode=0x05 & imm16 & regA & regB {
 	*:1 (regA + sext(imm16:2)) = regB[7, 8];
