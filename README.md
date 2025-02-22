@@ -31,3 +31,5 @@ gradle buildExtension
 Original source: https://gitlab.com/CycleOfTheAbsurd/ghidra_processor_nios_II
 - Added fixes for current Ghidra.
 - Added build.gradle
+- Fixed call offsets
+- Added mov and nop pseudo-ops.
