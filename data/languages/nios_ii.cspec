@@ -29,6 +29,7 @@
     </readonly>
 
     <stackpointer register="sp" space="RAM" />
+    
     <returnaddress>
         <register name="ra" />
     </returnaddress>
@@ -70,6 +71,7 @@
             </returnaddress>
             
             <unaffected>
+                <register name="fp" />
                 <register name="r16" />
                 <register name="r17" />
                 <register name="r18" />
