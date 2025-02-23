@@ -27,7 +27,7 @@ gradle buildExtension
  The documentation for `ldefs`, `cspec` and `pspec` files is kind of hidden. Inside the Ghidra repository, it is located at `REPO/Ghidra/Features/Decompiler/src/main/doc` and can be compiled to html with the following command:</br>
  `xsltproc cspec_html.xsl cspec.xml > cspec.html`
 
-# Forked From
+# Changelog
 Original source: https://gitlab.com/CycleOfTheAbsurd/ghidra_processor_nios_II
 - Added fixes for current Ghidra.
 - Added build.gradle
