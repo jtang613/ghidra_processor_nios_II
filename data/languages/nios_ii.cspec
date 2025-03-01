@@ -35,7 +35,7 @@
     </returnaddress>
 
     <default_proto>
-        <prototype name="firstlevel_call" extrapop="0" stackshift="0" strategy="standard">
+        <prototype name="__stdcall" extrapop="0" stackshift="0" strategy="register">
             <input>
                 <!-- Single register parameters -->
                 <pentry minsize="1" maxsize="4" align="4">
@@ -71,6 +71,7 @@
             </returnaddress>
             
             <unaffected>
+                <register name="sp" />
                 <register name="fp" />
                 <register name="r16" />
                 <register name="r17" />
@@ -79,16 +80,6 @@
                 <register name="r20" />
                 <register name="r21" />
             </unaffected>
-            
-            <killedbycall>
-                <register name="r8" />
-                <register name="r9" />
-                <register name="r10" />
-                <register name="r12" />
-                <register name="r13" />
-                <register name="r14" />
-                <register name="r15" />
-            </killedbycall>
         </prototype>
     </default_proto>
 </compiler_spec>

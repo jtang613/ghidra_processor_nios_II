@@ -120,6 +120,9 @@ with : opcode=0x3a {
 		:mov regC, regA is opx=0x31 & regA & regB=0 & regC {
 			regC = regA;
 		}
+		:mov regC, 0x0 is opx=0x31 & regA=0 & regB=0 & regC {
+			regC = 0:4;
+		}
 		:nop is opx=0x31 & regA=0 & regB=0 & regC=0 {
 			# No operation
 		}
@@ -153,6 +156,9 @@ with : opcode=0x3a {
 :stb regB, imm16(^regA^) is opcode=0x05 & imm16 & regA & regB {
 	*:1 (regA + sext(imm16:2)) = regB[7, 8];
 }
+:stb 0x0, imm16(^regA^) is opcode=0x05 & imm16 & regA & regB=0 {
+	*:1 (regA + sext(imm16:2)) = 0:4;
+}
 :br target is opcode=0x06 & imm16 [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	goto [dest];
@@ -172,9 +178,18 @@ with : opcode=0x3a {
 :sth regB, imm16(^regA^) is opcode=0x0d & imm16 & regA & regB {
 	*:2 (regA + sext(imm16:2)) = regB[15, 16];
 }
+:sth 0x0, imm16(^regA^) is opcode=0x0d & imm16 & regA & regB=0 {
+	*:2 (regA + sext(imm16:2)) = 0:4;
+}
 :bge regA, regB, target is opcode=0x0e & imm16 & regB & regA [ target = inst_next + imm16; ]{
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA s>= regB) goto <end>;
+		 goto [dest];
+	<end>
+}
+:bge 0x0, regB, target is opcode=0x0e & imm16 & regB & regA=0 [ target = inst_next + imm16; ]{
+	local dest:4 = inst_next + sext(imm16:2);
+	if (0 s>= regB) goto <end>;
 		 goto [dest];
 	<end>
 }
@@ -188,8 +203,14 @@ with : opcode=0x3a {
 :ori regB, regA, imm16 is opcode=0x14 & imm16 & regA & regB {
 	regB = regA | zext(imm16:2);
 }
+:ori regB, imm16 is opcode=0x14 & imm16 & regA=0 & regB {
+	regB = zext(imm16:2);
+}
 :stw regB, imm16(^regA^) is opcode=0x15 & imm16 & regA & regB {
 	*:4 (regA + sext(imm16:2)) = regB;
+}
+:stw 0x0, imm16(^regA^) is opcode=0x15 & imm16 & regA & regB=0 {
+	*:4 (regA + sext(imm16:2)) = 0:4;
 }
 :blt regA, regB, target is opcode=0x16 & imm16 & regB & regA [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
@@ -213,6 +234,12 @@ with : opcode=0x3a {
 		goto [dest];
 	<end>
 }
+:bne regA, 0x0, target is opcode=0x1e & imm16 & regA & regB=0 [ target = inst_next + imm16; ] {
+	local dest:4 = inst_next + sext(imm16:2);
+	if (regA != 0) goto <end>;
+		goto [dest];
+	<end>
+}
 :cmpeqi regB, regA, imm16 is opcode=0x20 & imm16 & regA & regB {
 	regB = zext(regA == sext(imm16:2));
 }
@@ -228,6 +255,12 @@ with : opcode=0x3a {
 :beq regA, regB, target is opcode=0x26 & imm16 & regA & regB [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA == regB) goto <end>;
+		goto [dest];
+	<end>
+}
+:beq regA, 0x0, target is opcode=0x26 & imm16 & regA & regB=0 [ target = inst_next + imm16; ] {
+	local dest:4 = inst_next + sext(imm16:2);
+	if (regA == 0) goto <end>;
 		goto [dest];
 	<end>
 }
@@ -262,6 +295,9 @@ with : opcode=0x3a {
 :initd imm16(^regA^) is opcode=0x33 & imm16 & regA {} # Initializes the data cache line associated with address rA + sext(IMM16).
 :orhi regB, regA, imm16 is opcode=0x34 & imm16 & regA & regB {
 	regB = regA | (zext(imm16:2) << 16);
+}
+:orhi regB, imm16 is opcode=0x34 & imm16 & regA=0 & regB {
+	regB = (zext(imm16:2) << 16);
 }
 :stwio regB, imm16(^regA^) is opcode=0x35 & imm16 & regA & regB {
 	*:4 (regA + sext(imm16:2)) = regB;
