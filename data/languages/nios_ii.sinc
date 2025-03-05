@@ -127,7 +127,7 @@ with : opcode=0x3a {
 			# No operation
 		}
 	}
-	:break is opx=0x34 unimpl # used to go to debugger
+	:break is opx=0x34 {} # used to go to debugger
 	:sync is opx=0x36 {} # Forces all pending memory accesses to complete before continuing
 	:sub regC, regA, regB is opx=0x39 & regA & regB & regC {
 		regC = regA - regB;
@@ -176,7 +176,7 @@ with : opcode=0x3a {
 	regB = regA & zext(imm16:2);
 }
 :sth regB, imm16(^regA^) is opcode=0x0d & imm16 & regA & regB {
-	*:2 (regA + sext(imm16:2)) = regB[15, 16];
+	*:2 (regA + sext(imm16:2)) = regB:4;
 }
 :sth 0x0, imm16(^regA^) is opcode=0x0d & imm16 & regA & regB=0 {
 	*:2 (regA + sext(imm16:2)) = 0:4;
@@ -184,6 +184,12 @@ with : opcode=0x3a {
 :bge regA, regB, target is opcode=0x0e & imm16 & regB & regA [ target = inst_next + imm16; ]{
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA s>= regB) goto <end>;
+		 goto [dest];
+	<end>
+}
+:bge regA, 0x0, target is opcode=0x0e & imm16 & regB=0 & regA [ target = inst_next + imm16; ]{
+	local dest:4 = inst_next + sext(imm16:2);
+	if (regA s>= 0) goto <end>;
 		 goto [dest];
 	<end>
 }
@@ -215,6 +221,12 @@ with : opcode=0x3a {
 :blt regA, regB, target is opcode=0x16 & imm16 & regB & regA [ target = inst_next + imm16; ] {
 	local dest:4 = inst_next + sext(imm16:2);
 	if (regA s< regB) goto <end>;
+		goto [dest];
+	<end>
+}
+:blt 0x0, regB, target is opcode=0x16 & imm16 & regB & regA=0 [ target = inst_next + imm16; ] {
+	local dest:4 = inst_next + sext(imm16:2);
+	if (0 s< regB) goto <end>;
 		goto [dest];
 	<end>
 }
