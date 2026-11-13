@@ -35,7 +35,9 @@ define token instr (32)
 	imm16 = (6, 21) signed
 	imm16_u = (6, 21)
 	regB = (22, 26)
+	bRaw = (22, 26)
 	regA = (27, 31)
+	aRaw = (27, 31)
 # R-type specific
 	opx_full = (6, 16)
 	opx = (11, 16)
